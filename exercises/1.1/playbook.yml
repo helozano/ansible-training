@@ -1,0 +1,7 @@
+---
+- hosts: webserver
+  tasks:
+  - name: Create config file
+    file:
+      path: prod.cfg
+      state: touch
