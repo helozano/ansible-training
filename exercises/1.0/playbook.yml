@@ -1,0 +1,5 @@
+---
+- hosts: webserver
+  tasks:
+  - name: Check if server is alive
+    ping:
