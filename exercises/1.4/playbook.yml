@@ -1,0 +1,44 @@
+---
+- hosts: webserver
+  vars:
+    user: hector
+  tasks:
+   - name: pull static page
+     git:
+       repo: https://github.com/helozano/ansible-training.git
+       dest: /tmp/repo
+
+   - name: Install nginx
+     apt:
+       name: nginx
+       state: present
+
+   - name: Create sandbox folder
+     file:
+       path: "/var/www/html/{{ user }}"
+       state: directory
+
+   - name: List files from html folder
+     find:
+       paths: "/var/www/html/{{ user }}/"
+     register: file_list
+
+   - name: Check find output
+     debug:
+       var: file_list
+
+   - name: list extensions
+     debug:
+       var: file_list.files[0].path.split('.')[-1]
+
+   - name: Delete html files
+     file:
+       path: "{{ item.path }}"
+       state: absent
+     loop: "{{ file_list.files }}"
+     when: item.path.split('.')[-1] == "html"
+
+   - name: Copy site
+     copy:
+       src: /tmp/repo/site/
+       dest: "/var/www/html/{{ user }}/"
