@@ -1,2 +1,7 @@
 [webserver]
-localhost ansible_connection=local
+54.160.244.233
+
+[webserver:vars]
+ansible_user=ec2-user
+host_key_checking=false
+ansible_ssh_private_key_file=./ansibledemo.pem

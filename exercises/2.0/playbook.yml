@@ -1,14 +1,14 @@
 - hosts: localhost
   roles:
-    - ansible_role_create_tier1_server
+    - ansible-role-create-tier1-server
 
 - hosts: just_created
   roles:
-    - ansible_role_gen_token
+    - ansible-role-gen-token
 
-- hosts: localhost
+- hosts: webserver
   roles:
-    - ansible_role_deploy_site
+    - ansible-role-deploy-site
   tasks:
    - name: Modify site with token
      lineinfile:
