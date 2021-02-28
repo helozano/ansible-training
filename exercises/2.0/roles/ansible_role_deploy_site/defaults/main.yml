@@ -1,0 +1,5 @@
+repo_url: https://github.com/helozano/ansible-training.git
+user: hector
+site_path: "/var/www/html"
+sandbox_folder: "{{ site_path }}/{{ user }}"
+tmp_path: /tmp/repo
