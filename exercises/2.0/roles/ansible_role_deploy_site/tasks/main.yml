@@ -1,0 +1,39 @@
+- name: pull static page
+  git:
+    repo: "{{ repo_url }}"
+    dest: "{{ tmp_path }}"
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Create sandbox folder
+  file:
+    path: "{{ sandbox_folder }}"
+    state: directory
+
+- name: List files from html folder
+  find:
+    paths: "{{ site_path }}/"
+  register: file_list
+
+- name: Check find output
+  debug:
+    var: file_list
+
+- name: list extensions
+  debug:
+    var: file_list.files[0].path.split('.')[-1]
+
+- name: Delete html files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ file_list.files }}"
+  when: item.path.split('.')[-1] == "html"
+
+- name: Copy site
+  copy:
+    src: /tmp/repo/site/
+    dest: "{{ sandbox_folder }}/"
