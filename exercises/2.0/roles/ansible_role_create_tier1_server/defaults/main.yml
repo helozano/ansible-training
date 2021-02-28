@@ -1,0 +1,16 @@
+
+##### EC2 Vars ###############
+key_pair: ansibledemo
+instance_type: t2.micro
+image_id: ami-0915bcb5fa77e4892
+sg_id: sg-0f656dfd52aceea0d
+subnet_id: subnet-02ae1492220157144
+host_group: just_created
+aws_acces_key: 
+aws_secret_key: 
+aws_region: us-east-1
+
+#### SG VARS ################
+sg_name: demo-allow-ssh
+vpc_id: vpc-0a3a776b60ce5ac8f
+region: us-east-1
