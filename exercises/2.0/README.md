@@ -3,4 +3,4 @@ To get access to tyhe aws account file at roles/ansible_role_create_tier1_server
 * aws_secret_key defined
 * key_pair:  
 
-For key_pair the .pem file should be placed at the same level where the playbook is launched
+For key_pair the key pair must exist in AWS and the .pem file should be placed at the same level where the playbook is launched
