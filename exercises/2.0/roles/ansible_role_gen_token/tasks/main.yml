@@ -1,0 +1,9 @@
+- name: Copy template file
+  template:
+    src: templates/gentoken.j2
+    dest: /tmp/gentoken.sh
+    mode: '775'
+
+- name: Generate token
+  shell: /tmp/gentoken.sh
+  register: token
