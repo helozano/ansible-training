@@ -1,0 +1,17 @@
+- hosts: localhost
+  roles:
+    - ansible_role_create_tier1_server
+
+- hosts: just_created
+  roles:
+    - ansible_role_gen_token
+
+- hosts: localhost
+  roles:
+    - ansible_role_deploy_site
+  tasks:
+   - name: Modify site with token
+     lineinfile:
+       path: "{{ sandbox_folder }}/index.html"
+       regex: "VERSION"
+       line: "<td>{{ hostvars[hostvars.localhost.ec2.instances[0].public_ip].token.stdout }}</td>"
