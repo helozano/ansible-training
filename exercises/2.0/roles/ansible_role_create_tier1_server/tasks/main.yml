@@ -1,0 +1,88 @@
+### Creates a SG and saves the info to a variable ####
+- name: Create site Security Group
+  amazon.aws.ec2_group:
+    name: "{{ sg_name }}"
+    description: "Managed by Ansible"
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ region }}"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_acces_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+  register: sg
+
+### Provisions a ne ec2, uses previous SG id and saves
+### ec2 details to variable
+- name: Provision a new EC2 instance
+  amazon.aws.ec2:
+    key_name: "{{ key_pair }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ image_id }}"
+    wait: yes
+    group_id: "{{ sg.group_id }}"
+    vpc_subnet_id: "{{ subnet_id }}"
+    assign_public_ip: yes
+  register: ec2
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_acces_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+- name: Get localhost public ip
+  shell: curl http://checkip.amazonaws.com
+  register: myip
+
+### Adds the new ip to the SG
+- name: Add instance ip to SG
+  amazon.aws.ec2_group:
+    name: "{{ sg_name }}"
+    description: "Managed by Ansible"
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: "{{ myip.stdout }}/32"
+        rule_desc: "Managed by Ansible"
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: "{{ ec2.instances[0].public_ip }}/32"
+        rule_desc: "Managed by Ansible"
+    rules_egress:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: "{{ myip.stdout }}/32"
+        rule_desc: "Managed by Ansible"
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: "{{ ec2.instances[0].public_ip }}/32"
+        rule_desc: "Managed by Ansible"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_acces_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+### pings port 22 and uses search_regex property
+### to check if it contains OpenSSh string with a delay of 10
+- name: Wait for port 22 to become open and contain "OpenSSH"
+  wait_for:
+    port: 22
+    host: '{{ ec2.instances[0].public_ip }}'
+    search_regex: OpenSSH
+    delay: 10
+
+### Adds host to inventory and passes: user, ssh-key
+- name: Add host to inventory
+  add_host:
+    name: "{{ ec2.instances[0].public_ip }}"
+    group: "{{ host_group }}"
+    ansible_user: ec2-user
+    host_key_checking: false
+    ansible_ssh_private_key_file: ./ansibledemo.pem
+    wait_for_connection:
+      delay: 60
+      timeout: 320
