@@ -7,6 +7,7 @@
     - ansible-role-gen-token
 
 - hosts: webserver
+  become: yes
   roles:
     - ansible-role-deploy-site
   tasks:
